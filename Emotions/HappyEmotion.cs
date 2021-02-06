@@ -29,7 +29,7 @@ public class HappyEmotion : IEmotion
          *
          * Emotii date pe fata - Paul Ekman, pg 294
          * "Zambetele pot crea confuzie nu doar pentru ca apar odata cu fiecare emotie placuta, ci si pentru
-         * ca apar atunci cand oamenii nu simt niciun fel de bucirie, ca in politete, de plida."
+         * ca apar atunci cand oamenii nu simt niciun fel de bucurie, ca in politete, de plida."
          */
         cntr = (GameObject) this.controllers["Crnr_R_2_cntr"];
         cntr.transform.localPosition += new Vector3(-0.025f * intensity, 0, 0);
@@ -48,7 +48,7 @@ public class HappyEmotion : IEmotion
         /*
          * Emotii date pe fata - Paul Ekman, pg 295
          * "Cu mai bine de o suta de ani in urma, marele neurolog francez Duchenne de Boulogne a descoperit
-         * cum adevaratul zambet de bucirie difera de toate cele care nu au legatura cu placerea. El a studiat
+         * cum adevaratul zambet de bucurie difera de toate cele care nu au legatura cu placerea. El a studiat
          * modul in care fiecare muschi facial modifica expresia subiectilor, stimuland electric diferite parti
          * ale figurii si fotografiind rezultatul contractiilor musculare."
          *
@@ -58,7 +58,7 @@ public class HappyEmotion : IEmotion
          * dulcile emotii ale sufletului [retineti, scria in 1862]; (...) bucuria falsa, rasul amagitor nu
          * pot provoca si contractia celei de-a doua categorii de muschi... Muschii din jurul ochilor nu se
          * supun vointei; sunt miscati doar de un sentiment adevarat, de o emotie agreabila. Inertia lor,
-         * in zambetm tradeaza un fals prieten."
+         * in zambet tradeaza un fals prieten."
          */
 
         // Laba gastei si punga de sub ochi
