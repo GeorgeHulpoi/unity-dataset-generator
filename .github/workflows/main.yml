@@ -1,0 +1,37 @@
+name: Create Unity Package
+on: [push]
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Create folder Assets
+        run: |
+          mkdir -p Assets/DatasetGenerator
+          mkdir Assets/DatasetGenerator/Emotions
+      - name: Move files to Assets
+        run: |
+          mv *.cs.meta Assets/DatasetGenerator
+          mv *.cs Assets/DatasetGenerator
+          mv Emotions/*.cs.meta Assets/DatasetGenerator/Emotions
+          mv Emotions/*.cs Assets/DatasetGenerator/Emotions
+      - name: Create list of metas
+        run: |
+          touch metaList
+          find Assets/DatasetGenerator/ -name \*.meta >> metaList
+          find Assets/DatasetGenerator/Emotions/ -name \*.meta >> metaList
+
+      - name: Create dist folder
+        run: mkdir dist  
+
+      - name: Package the files
+        uses: pCYSl5EDgo/create-unitypackage@master
+        with:
+          package-path: 'dist/dataset-generator.unitypackage'
+          include-files: metaList
+
+      - uses: actions/upload-artifact@master
+        with:
+          name: package
+          path: dist
