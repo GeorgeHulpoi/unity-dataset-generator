@@ -5,27 +5,33 @@ using UnityEngine;
 [ExecuteAlways]
 public class DatasetGeneratorScript : MonoBehaviour
 {
+    [SerializeField]
+    public GameObject snappersControllers;
+
     [Range(0.0f, 1.0f)]
     public float angryIntensity;
 
     [Range(0.0f, 1.0f)]
     public float happyIntensity;
 
+    [Range(0.0f, 1.0f)]
+    public float surpriseIntensity;
+
     private Hashtable controllers;
     private IEmotion angryEmotion;
     private IEmotion happyEmotion;
+    private IEmotion surpriseEmotion;
 
     void Start()
     {
-        GameObject snappersControllers = GameObject.Find("Gawain_SnappersControllers");
-
-        if (snappersControllers != null) 
+        if (this.snappersControllers != null) 
         {
-            this.controllers = this.GetFacialControllers(snappersControllers);
+            this.controllers = this.GetFacialControllers(this.snappersControllers);
             this.ResetControllersPosition(this.controllers);
 
             this.angryEmotion = new AngryEmotion(this.controllers);
             this.happyEmotion = new HappyEmotion(this.controllers);
+            this.surpriseEmotion = new SurpriseEmotion(this.controllers);
         }
     }
 
@@ -43,6 +49,11 @@ public class DatasetGeneratorScript : MonoBehaviour
             if (this.happyEmotion != null)
             {
                 this.happyEmotion.Apply(this.happyIntensity);
+            }
+
+            if (this.surpriseEmotion != null)
+            {
+                this.surpriseEmotion.Apply(this.surpriseIntensity);
             }
         }
     }
