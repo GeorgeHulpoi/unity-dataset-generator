@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SurpriseEmotion : IEmotion
+public class FearEmotion : IEmotion
 {
     private Hashtable controllers;
 
-    public SurpriseEmotion(Hashtable controllers)
+    public FearEmotion(Hashtable controllers)
     {
         this.controllers = controllers;
     }
@@ -42,17 +42,17 @@ public class SurpriseEmotion : IEmotion
         // Pe axa X, ia valori intre [0, 0.025] (tensionarea pleoapei inferioare)
         // unde minimul este pleoapa neutra, iar maximul este ploapa tensionata
         cntr = (GameObject) this.controllers["EyeSqz_R_cntr"];
-        cntr.transform.localPosition += new Vector3(-0.025f * intensity, 0.025f * intensity, 0);
+        cntr.transform.localPosition += new Vector3(0.025f * intensity, 0.025f * intensity, 0);
         cntr = (GameObject) this.controllers["EyeSqz_L_cntr"];
-        cntr.transform.localPosition += new Vector3(-0.025f * intensity, 0.025f * intensity, 0);
+        cntr.transform.localPosition += new Vector3(0.025f * intensity, 0.025f * intensity, 0);
 
         // Ridicam pleoapa superioara in sus
         // Axa Y ia valori intre [-0.025, 0.025], unde minimum este pleoapa acopera tot ochiul,
         // iar maximum este ridicarea pleoapei total. Valoarea 0 reprezinta o pozitie neutra.
         cntr = (GameObject) this.controllers["UprLid_R_cntr"];
-        cntr.transform.localPosition += new Vector3(0, 0.0075f * intensity, 0);
+        cntr.transform.localPosition += new Vector3(0, 0.025f * intensity, 0);
         cntr = (GameObject) this.controllers["UprLid_L_cntr"];
-        cntr.transform.localPosition += new Vector3(0, 0.0075f * intensity, 0);
+        cntr.transform.localPosition += new Vector3(0, 0.025f * intensity, 0);
 
         /*
          * Emotii date pe fata - Paul Ekman, pg 242
@@ -69,9 +69,9 @@ public class SurpriseEmotion : IEmotion
         // Pe axa X ia valori intre [0, 0.025] unde minimul este neutru, iar maximul este
         // spranceana impreunata cu cealalta
         cntr = (GameObject) this.controllers["BrowIn_R_cntr"];
-        cntr.transform.localPosition += new Vector3(-0.025f * intensity, 0.025f * intensity, 0);
+        cntr.transform.localPosition += new Vector3(0.025f * intensity, 0.025f * intensity, 0);
         cntr = (GameObject) this.controllers["BrowIn_L_cntr"];
-        cntr.transform.localPosition += new Vector3(-0.025f * intensity, 0.025f * intensity, 0);
+        cntr.transform.localPosition += new Vector3(0.025f * intensity, 0.025f * intensity, 0);
 
         /*
          * Emotii date pe fata - Paul Ekman, pg 243
@@ -79,11 +79,14 @@ public class SurpriseEmotion : IEmotion
          * In surpriza, falca este cazuta, ca in imaginea K, iar in frica buzele sunt
          * trase in spate, spre ochi, ca in imaginea L."
          */
-        // Pe axa Y ia valori intre [-0.025, 0], unde minimul este gura deschisa larg,
-        // iar maximul este gura inchisa
-        // Pentru a nu exagera cu gura deschisa, am ales ca -0.0140 sa fie minimul in cazul
-        // acestei emotii
-        cntr = (GameObject) this.controllers["Jaw_cntr"];
-        cntr.transform.localPosition += new Vector3(0, -0.014f * intensity, 0);
+        // Pe axa X ia valori intre [-0.025, 0.025], unde minimul este coltul gurii tras
+        // catre ochi, iar maximul este un fel de buza tuguiata
+        // Pe axa Y ia valori intre [-0.025, 0], unde minimul este coltul gurii tras in jos
+        // iar maximul este pozitia neutra (face sa fie un zambet in mod neutru)
+        cntr = (GameObject) this.controllers["Crnr_R_2_cntr"];
+        cntr.transform.localPosition += new Vector3(-0.025f * intensity, -0.025f * intensity, 0);
+        cntr = (GameObject) this.controllers["Crnr_L_2_cntr"];
+        cntr.transform.localPosition += new Vector3(-0.025f * intensity, -0.025f * intensity, 0);
+
     }
 }

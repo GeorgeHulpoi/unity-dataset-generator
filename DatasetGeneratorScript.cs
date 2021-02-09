@@ -17,10 +17,14 @@ public class DatasetGeneratorScript : MonoBehaviour
     [Range(0.0f, 1.0f)]
     public float surpriseIntensity;
 
+    [Range(0.0f, 1.0f)]
+    public float fearIntensity;
+
     private Hashtable controllers;
     private IEmotion angryEmotion;
     private IEmotion happyEmotion;
     private IEmotion surpriseEmotion;
+    private IEmotion fearEmotion;
 
     void Start()
     {
@@ -32,6 +36,7 @@ public class DatasetGeneratorScript : MonoBehaviour
             this.angryEmotion = new AngryEmotion(this.controllers);
             this.happyEmotion = new HappyEmotion(this.controllers);
             this.surpriseEmotion = new SurpriseEmotion(this.controllers);
+            this.fearEmotion = new FearEmotion(this.controllers);
         }
     }
 
@@ -54,6 +59,11 @@ public class DatasetGeneratorScript : MonoBehaviour
             if (this.surpriseEmotion != null)
             {
                 this.surpriseEmotion.Apply(this.surpriseIntensity);
+            }
+
+            if (this.fearEmotion != null)
+            {
+                this.fearEmotion.Apply(this.fearIntensity);
             }
         }
     }
