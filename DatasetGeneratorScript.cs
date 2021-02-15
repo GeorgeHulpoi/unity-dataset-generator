@@ -8,6 +8,9 @@ public class DatasetGeneratorScript : MonoBehaviour
     [SerializeField]
     public GameObject snappersControllers;
 
+    [SerializeField]
+    public Camera camera;
+
     [Range(0.0f, 1.0f)]
     public float angryIntensity;
 
@@ -42,6 +45,11 @@ public class DatasetGeneratorScript : MonoBehaviour
         this.ClearScene();
         this.SetupLight();
         this.SetupCamera();
+
+        if (this.camera.targetTexture == null)
+        {
+            this.camera.targetTexture = new RenderTexture(512, 512, 24);
+        }
     }
 
     void Update() 
@@ -69,6 +77,12 @@ public class DatasetGeneratorScript : MonoBehaviour
             {
                 this.fearEmotion.Apply(this.fearIntensity);
             }
+        }
+
+        if (Input.GetButtonDown("Fire1"))
+        {
+            byte[] bytes = this.Capture();
+            System.IO.File.WriteAllBytes($"{Application.dataPath}/Snapshots/test.png", bytes);
         }
     }
 
@@ -150,5 +164,15 @@ public class DatasetGeneratorScript : MonoBehaviour
         {
             camera.transform.position = new Vector3(0, 1.72f, -1.321f);
         }
+    }
+
+    private byte[] Capture()
+    {
+        Texture2D snapshot = new Texture2D(512, 512, TextureFormat.RGB24, false);
+        this.camera.Render();
+        RenderTexture.active = this.camera.targetTexture;
+        snapshot.ReadPixels(new Rect(0, 0, 512, 512), 0, 0);
+        byte[] bytes = snapshot.EncodeToPNG();
+        return bytes;
     }
 }
