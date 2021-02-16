@@ -24,6 +24,12 @@ public class AngryEmotion : IEmotion
          * impreunand sprancenele. Perplexitatea, confuzia, concentrarea, hotararea - toate pot fi
          * sugerate prin acest gest.
          */
+         // Pivoti pentru sprancene, pozitionate spre interior
+         // Pe axa Y ia valori intre [-0.025, 0.025], unde minimul este spranceana trasa in jos, 
+         // iar maximul este spranceana trasa in sus, 0 reprezinta pozitia neutra. Cum nu ne intereseaza
+         // ca spranceana sa fie in sus, o sa lucram cu intervalul [-0.025, 0]
+         // Pe axa X ia valori intre [0, 0.025], unde minimul reprezinta pozitia neutra,
+         // iar maximul reprezinta spranceana trasa spre interior
         cntr = (GameObject) this.controllers["BrowIn_L_cntr"];
         cntr.transform.localPosition += new Vector3(0.025f * intensity, -0.025f * intensity, 0);
         cntr = (GameObject) this.controllers["BrowIn_R_cntr"];
@@ -46,11 +52,25 @@ public class AngryEmotion : IEmotion
          * Aceasta este o cautatura; in acest caz nu e aproape niciun dubiu ca aceasta ar fi un semn de
          * furie, o furie controlata, probabil."
          */
+        
+        // Axa X reprezinta incordarea muschilori orbitali inferior, care ridica foarte putin pleoapa
+        // inferioara. Aceasta ia valori intre [0.0, 0.025] unde minimul reprezinta pozitia neutra,
+        // iar maximul reprezinta incordarea maxima. In acest caz, se va folosi val 0.01 ca maxim
+        // Axa Y reprezinta incordarea muschilor orbitali superiori, care ridica surplusul de 
+        // piele dintre pleoapa superioara si spranceana
+        // Aceasta ia valori intre [-0.025, 0], unde minimul reprezinta muschiul neincordat (aici nu sunt 
+        // foarte sigur, dar pleoapa este lasata), iar maximul reprezinta muschiul incordat.
+        // In teorie, 0 este o pozitie neutra, dar adaugam 0.025 pentru a ne asigura constant ca pleoapa
+        // nu este lasata
         cntr = (GameObject) this.controllers["EyeSqz_R_cntr"];
         cntr.transform.localPosition += new Vector3(intensity * 0.01f, intensity * 0.025f, 0);
         
         cntr = (GameObject) this.controllers["EyeSqz_L_cntr"];
         cntr.transform.localPosition += new Vector3(intensity * 0.01f, intensity * 0.025f, 0);
+
+        // Reprezinta ridicare pleoapei superioare (inchiderea ochiului sau deschiderea)
+        // Pe axa Y ia valori intre [-0.025, 0.025], unde minimul este pleoapa trasa in jos,
+        // iar maximul este pleoapa trasa in sus. Am considerat sa lucrez cu intervalul [0.0, 0.025]
 
         cntr = (GameObject) this.controllers["UprLid_R_cntr"];
         cntr.transform.localPosition += new Vector3(0, intensity * 0.025f, 0);
@@ -78,11 +98,16 @@ public class AngryEmotion : IEmotion
          */
 
         // Impinge falca inainte 
+        // Pe axa Z ia valori intre [-0.025, 0.025], unde minimul reprezinta
+        // maxilarul impins spre interior, 0 pozitia neutra, iar
+        // maximul reprezinta maxilarul impins spre exterior
         cntr = (GameObject) this.controllers["Jaw_cntr"];
         cntr.transform.localPosition += new Vector3(0, 0, intensity * 0.025f);
 
         // Buzele devin apasate
+        // Pe axa Y ia valori intre [-0.025, 0.025], unde minimul reprezinta o pozitie neutra
+        // iar maximul reprezinta apasarea maxima
         cntr = (GameObject) this.controllers["UprLip_2_cntr"];
-        cntr.transform.localPosition += new Vector3(0, intensity * -0.025f, 0);
+        cntr.transform.localPosition += new Vector3(0, -0.025f + intensity * 0.05f, 0);
     }
 }
