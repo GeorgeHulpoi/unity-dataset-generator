@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[ExecuteAlways]
 public class DatasetGeneratorScript : MonoBehaviour
 {
     [SerializeField]
@@ -11,87 +10,82 @@ public class DatasetGeneratorScript : MonoBehaviour
     [SerializeField]
     public Camera camera;
 
-    [Range(0.0f, 1.0f)]
-    public float angryIntensity;
+    [SerializeField]
+    public int textureWidth = 512;
+    
+    [SerializeField]
+    public int textureHeight = 512;
 
-    [Range(0.0f, 1.0f)]
-    public float happyIntensity;
-
-    [Range(0.0f, 1.0f)]
-    public float surpriseIntensity;
-
-    [Range(0.0f, 1.0f)]
-    public float fearIntensity;
+    [SerializeField]
+    public int numberOfImages;
 
     private Hashtable controllers;
-    private IEmotion angryEmotion;
-    private IEmotion happyEmotion;
-    private IEmotion surpriseEmotion;
-    private IEmotion fearEmotion;
+    private EmotionsController emotionsController;
+    private SnapshotCamera snapshotCamera;
+    private GeneratorCoroutine generatorCoroutine = new GeneratorCoroutine();
+    private EmotionsDistribution currentEmotionsDistribution = new EmotionsDistribution();
+    private Redis redis = new Redis();
+    private bool skipFirstLateUpdate;
 
     void Start()
     {
+        this.generatorCoroutine = this.generatorCoroutine.SetCurrentEmotionsDistribution(this.currentEmotionsDistribution);
+
         if (this.snappersControllers != null) 
         {
             this.controllers = this.GetFacialControllers(this.snappersControllers);
-            this.ResetControllersPosition(this.controllers);
-
-            this.angryEmotion = new AngryEmotion(this.controllers);
-            this.happyEmotion = new HappyEmotion(this.controllers);
-            this.surpriseEmotion = new SurpriseEmotion(this.controllers);
-            this.fearEmotion = new FearEmotion(this.controllers);
+            this.emotionsController = new EmotionsController(this.controllers);
+            this.generatorCoroutine = this.generatorCoroutine.SetEmotionsController(this.emotionsController);
         }
 
         this.ClearScene();
         this.SetupLight();
         this.SetupCamera();
 
-        if (this.camera.targetTexture == null)
+        if (this.camera != null)
         {
-            this.camera.targetTexture = new RenderTexture(512, 512, 24);
+            this.snapshotCamera = new SnapshotCamera(this.camera, this.textureWidth, this.textureHeight);
+            this.generatorCoroutine = this.generatorCoroutine.SetSnapshotCamera(this.snapshotCamera);
+            
         }
     }
 
     void Update() 
     {
-        if (this.controllers != null)
+        if (Input.GetButtonDown("Fire1") && this.generatorCoroutine != null)
         {
-            this.ResetControllersPosition(this.controllers);
-
-            if (this.angryEmotion != null)
-            {
-                this.angryEmotion.Apply(this.angryIntensity);
-            }
-
-            if (this.happyEmotion != null)
-            {
-                this.happyEmotion.Apply(this.happyIntensity);
-            }
-
-            if (this.surpriseEmotion != null)
-            {
-                this.surpriseEmotion.Apply(this.surpriseIntensity);
-            }
-
-            if (this.fearEmotion != null)
-            {
-                this.fearEmotion.Apply(this.fearIntensity);
-            }
-        }
-
-        if (Input.GetButtonDown("Fire1"))
-        {
-            byte[] bytes = this.Capture();
-            System.IO.File.WriteAllBytes($"{Application.dataPath}/Snapshots/test.png", bytes);
+            this.skipFirstLateUpdate = true;
+            StartCoroutine(this.generatorCoroutine.Start(this.numberOfImages));
         }
     }
 
-    private void ResetControllersPosition(Hashtable controllers)
+    void LateUpdate() 
     {
-        foreach (DictionaryEntry controller in controllers)
+        if (this.snapshotCamera != null && this.snapshotCamera.isActive)
         {
-            GameObject obj = (GameObject) controller.Value;
-            obj.transform.localPosition = new Vector3(0, 0, 0);
+            if (this.skipFirstLateUpdate == true)
+            {
+                this.skipFirstLateUpdate = false;
+                return;
+            }
+            
+            byte[] image = this.snapshotCamera.Capture();
+            string key = this.redis.StoreDataset(this.currentEmotionsDistribution, image);
+            this.redis.Publish(key);
+            this.snapshotCamera.SetActive(false);
+        }
+    }
+
+    void OnApplicationQuit() 
+    {
+        if (this.snapshotCamera != null)
+        {
+            DestroyImmediate(this.snapshotCamera.camera.gameObject);
+        }
+
+        if (this.redis != null)
+        {
+            this.redis.Disconnect();
         }
     }
 
@@ -151,28 +145,33 @@ public class DatasetGeneratorScript : MonoBehaviour
 
     private void SetupCamera()
     {
-        GameObject focusTarget = GameObject.Find("EyeFocus");
-
-        if (focusTarget != null)
+        GameObject eyeFocus = GameObject.Find("EyeFocus");
+        if (eyeFocus != null)
         {
-            focusTarget.transform.position = new Vector3(0, 1.7f, 0);
+            eyeFocus.transform.position = new Vector3(0, 1.7078f, 0);
+
+            FocusClosestTarget focusClosestTarget = (FocusClosestTarget) eyeFocus.GetComponent(typeof(FocusClosestTarget));
+            if (focusClosestTarget != null)
+            {
+                focusClosestTarget.focusNearDistance = 2.5f;
+            }
+        }
+
+        GameObject cameraFocusTarget = GameObject.Find("Camera Focus Target");
+        if (cameraFocusTarget != null)
+        {
+            cameraFocusTarget.transform.position = new Vector3(0, 1.5792f, 0);
         }
 
         GameObject camera = GameObject.Find("Main Camera");
-
         if (camera != null)
         {
+            AudioListener audioListener = camera.GetComponent<AudioListener>();
+            if (audioListener != null)
+            {
+                DestroyImmediate(audioListener);
+            }
             camera.transform.position = new Vector3(0, 1.72f, -1.321f);
         }
-    }
-
-    private byte[] Capture()
-    {
-        Texture2D snapshot = new Texture2D(512, 512, TextureFormat.RGB24, false);
-        this.camera.Render();
-        RenderTexture.active = this.camera.targetTexture;
-        snapshot.ReadPixels(new Rect(0, 0, 512, 512), 0, 0);
-        byte[] bytes = snapshot.EncodeToPNG();
-        return bytes;
     }
 }

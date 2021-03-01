@@ -1,4 +1,4 @@
-interface IEmotion
+public interface IEmotion
 {
     void Apply(float intensity);
 }
