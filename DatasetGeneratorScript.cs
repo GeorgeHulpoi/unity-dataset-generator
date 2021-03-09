@@ -11,6 +11,9 @@ public class DatasetGeneratorScript : MonoBehaviour
     public Camera camera;
 
     [SerializeField]
+    public Light directionalLight;
+
+    [SerializeField]
     public int textureWidth = 512;
     
     [SerializeField]
@@ -47,6 +50,11 @@ public class DatasetGeneratorScript : MonoBehaviour
             this.snapshotCamera = new SnapshotCamera(this.camera, this.textureWidth, this.textureHeight);
             this.generatorCoroutine = this.generatorCoroutine.SetSnapshotCamera(this.snapshotCamera);
             
+        }
+    
+        if (this.directionalLight != null)
+        {
+            this.generatorCoroutine = this.generatorCoroutine.SetDirectionalLight(this.directionalLight);
         }
     }
 
