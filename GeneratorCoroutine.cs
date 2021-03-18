@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GeneratorCoroutine 
@@ -7,7 +8,7 @@ public class GeneratorCoroutine
     private EmotionsController emotionsController;
     private SnapshotCamera snapshotCamera;
     private EmotionsDistribution currentEmotionsDistribution;
-    private Light directionalLight;
+    private GameObject directionalLight;
 
     public GeneratorCoroutine() {}
 
@@ -29,7 +30,7 @@ public class GeneratorCoroutine
         return this;
     }
 
-    public GeneratorCoroutine SetDirectionalLight(Light directionalLight)
+    public GeneratorCoroutine SetDirectionalLight(GameObject directionalLight)
     {
         this.directionalLight = directionalLight;
         return this;
@@ -37,29 +38,30 @@ public class GeneratorCoroutine
     
     public IEnumerator Start(int numberOfImages) 
     {
+        if (this.emotionsController == null || this.currentEmotionsDistribution == null 
+        || this.directionalLight == null || this.snapshotCamera == null)
+        {
+             throw new Exception("You cannot start without all fields.");
+        }
+
+        List<IEmotion> emotionsPool = emotionsController.GetPool();
+
         for (int i = 0; i < numberOfImages; i++)
         {
             // Emotions
-            if (this.emotionsController != null && this.currentEmotionsDistribution != null)
-            {
-                this.emotionsController.Reset();
-                EmotionsDistribution distribution = this.emotionsController.Randomize(0.8f, 0.95f);
-                this.currentEmotionsDistribution.Copy(distribution);
-            }
+            this.emotionsController.Reset();
+            IEmotion mainEmotion = emotionsPool[i % 3];
+            EmotionsDistribution distribution = this.emotionsController.Randomize(mainEmotion, 0.7f, 0.95f);
+            this.currentEmotionsDistribution.Copy(distribution);
 
             // Lights
-            if (this.directionalLight)
-            {
-                Vector3 rotation = new Vector3(this.directionalLight.transform.eulerAngles.x,
-                                               UnityEngine.Random.Range(-15.0f, 15.0f),
-                                               this.directionalLight.transform.eulerAngles.z);
-                this.directionalLight.transform.eulerAngles = rotation;
-            }
+            Vector3 rotation = new Vector3(this.directionalLight.transform.eulerAngles.x,
+                                            UnityEngine.Random.Range(-15.0f, 15.0f),
+                                            this.directionalLight.transform.eulerAngles.z);
+            this.directionalLight.transform.eulerAngles = rotation;
 
-            if (this.snapshotCamera != null)
-            {
-                this.snapshotCamera.SetActive(true);
-            }
+            // Camera
+            this.snapshotCamera.SetActive(true);
             
             yield return null;
         }

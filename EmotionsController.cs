@@ -49,20 +49,20 @@ public class EmotionsController
         }
     }
 
-    public EmotionsDistribution Randomize(float mainEmotionMinIntensity, float mainEmotionMaxIntensity)
+    public EmotionsDistribution Randomize(IEmotion mainEmotion, float mainEmotionMinIntensity, float mainEmotionMaxIntensity)
     {
         EmotionsDistribution distribution = new EmotionsDistribution();
         List<IEmotion> emotionsPool = this.GetPool();
+        IEmotion emotion;
 
         float mainEmotionIntensity = Random.Range(mainEmotionMinIntensity, mainEmotionMaxIntensity);
-        int index = Random.Range(0, emotionsPool.Count);
-        IEmotion mainEmotion = emotionsPool[index];
+        int index = emotionsPool.FindIndex(e => e.GetType() == mainEmotion.GetType());
+        emotion = emotionsPool[index];
         emotionsPool.RemoveAt(index);
-        mainEmotion.Apply(mainEmotionIntensity);
-        distribution.SetDistribution(mainEmotion, mainEmotionIntensity);
+        emotion.Apply(mainEmotionIntensity);
+        distribution.SetDistribution(emotion, mainEmotionIntensity);
 
         float remainingIntensity = 1 - mainEmotionIntensity;
-        IEmotion emotion;
         while (emotionsPool.Count > 1)
         {
             index = Random.Range(0, emotionsPool.Count);

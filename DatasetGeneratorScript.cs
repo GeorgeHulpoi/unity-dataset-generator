@@ -11,7 +11,7 @@ public class DatasetGeneratorScript : MonoBehaviour
     public Camera camera;
 
     [SerializeField]
-    public Light directionalLight;
+    public GameObject directionalLight;
 
     [SerializeField]
     public int textureWidth = 512;
@@ -143,17 +143,21 @@ public class DatasetGeneratorScript : MonoBehaviour
 
     private void SetupLight()
     {
-        GameObject light = GameObject.Find("Directional Light");
-
-        if (light != null)
+        if (this.directionalLight != null)
         {
-            light.transform.rotation = Quaternion.Euler(1, 0, 0);
+            this.directionalLight.transform.rotation = Quaternion.Euler(1, 0, 0);
+            this.directionalLight.SetActive(true);
+        }
+        else 
+        {
+            Debug.LogWarning("Directional Light not found!");
         }
     }
 
     private void SetupCamera()
     {
         GameObject eyeFocus = GameObject.Find("EyeFocus");
+
         if (eyeFocus != null)
         {
             eyeFocus.transform.position = new Vector3(0, 1.7078f, 0);
@@ -164,11 +168,19 @@ public class DatasetGeneratorScript : MonoBehaviour
                 focusClosestTarget.focusNearDistance = 2.5f;
             }
         }
+        else 
+        {
+            Debug.LogWarning("Eye Focus not found!");
+        }
 
         GameObject cameraFocusTarget = GameObject.Find("Camera Focus Target");
         if (cameraFocusTarget != null)
         {
             cameraFocusTarget.transform.position = new Vector3(0, 1.5792f, 0);
+        }
+        else 
+        {
+            Debug.LogWarning("Camera Focus Target not found!");
         }
 
         GameObject camera = GameObject.Find("Main Camera");
@@ -180,6 +192,10 @@ public class DatasetGeneratorScript : MonoBehaviour
                 DestroyImmediate(audioListener);
             }
             camera.transform.position = new Vector3(0, 1.72f, -1.321f);
+        }
+        else 
+        {
+            Debug.LogWarning("Main Camera not found!");
         }
     }
 }
