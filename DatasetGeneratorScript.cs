@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class DatasetGeneratorScript : MonoBehaviour
 {
@@ -9,6 +10,9 @@ public class DatasetGeneratorScript : MonoBehaviour
 
     [SerializeField]
     public Camera camera;
+
+    [SerializeField]
+    public Transform anchor;
 
     [SerializeField]
     public GameObject directionalLight;
@@ -28,7 +32,6 @@ public class DatasetGeneratorScript : MonoBehaviour
     private GeneratorCoroutine generatorCoroutine = new GeneratorCoroutine();
     private EmotionsDistribution currentEmotionsDistribution = new EmotionsDistribution();
     private Redis redis = new Redis();
-    private bool skipFirstLateUpdate;
 
     void Start()
     {
@@ -45,9 +48,9 @@ public class DatasetGeneratorScript : MonoBehaviour
         this.SetupLight();
         this.SetupCamera();
 
-        if (this.camera != null)
+        if (this.camera != null && this.anchor != null)
         {
-            this.snapshotCamera = new SnapshotCamera(this.camera, this.textureWidth, this.textureHeight);
+            this.snapshotCamera = new SnapshotCamera(this.camera, this.anchor, this.textureWidth, this.textureHeight);
             this.generatorCoroutine = this.generatorCoroutine.SetSnapshotCamera(this.snapshotCamera);
             
         }
@@ -62,7 +65,6 @@ public class DatasetGeneratorScript : MonoBehaviour
     {
         if (Input.GetButtonDown("Fire1") && this.generatorCoroutine != null)
         {
-            this.skipFirstLateUpdate = true;
             StartCoroutine(this.generatorCoroutine.Start(this.numberOfImages));
         }
     }
@@ -71,16 +73,18 @@ public class DatasetGeneratorScript : MonoBehaviour
     {
         if (this.snapshotCamera != null && this.snapshotCamera.isActive)
         {
-            if (this.skipFirstLateUpdate == true)
+            if (this.generatorCoroutine.frame < 3)
             {
-                this.skipFirstLateUpdate = false;
-                return;
+                this.generatorCoroutine.frame++;
             }
-            
-            byte[] image = this.snapshotCamera.Capture();
-            string key = this.redis.StoreDataset(this.currentEmotionsDistribution, image);
-            this.redis.Publish(key);
-            this.snapshotCamera.SetActive(false);
+            else 
+            {
+                byte[] image = this.snapshotCamera.Capture();
+                string key = this.redis.StoreDataset(this.currentEmotionsDistribution, image);
+                this.redis.Publish(key);
+                this.snapshotCamera.SetActive(false);
+                this.generatorCoroutine.frame = 100;
+            }
         }
     }
 
@@ -176,7 +180,7 @@ public class DatasetGeneratorScript : MonoBehaviour
         GameObject cameraFocusTarget = GameObject.Find("Camera Focus Target");
         if (cameraFocusTarget != null)
         {
-            cameraFocusTarget.transform.position = new Vector3(0, 1.5792f, 0);
+            cameraFocusTarget.transform.position = new Vector3(0, 1.682f, 0);
         }
         else 
         {
@@ -191,7 +195,7 @@ public class DatasetGeneratorScript : MonoBehaviour
             {
                 DestroyImmediate(audioListener);
             }
-            camera.transform.position = new Vector3(0, 1.72f, -1.321f);
+            camera.transform.position = new Vector3(0, 1.76f, -1.0f);
         }
         else 
         {

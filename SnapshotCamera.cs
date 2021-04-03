@@ -4,18 +4,25 @@ using UnityEngine;
 
 public class SnapshotCamera
 {
-    private int textureWidth = 512;
-    private int textureHeight = 512;
+    private int textureWidth;
+    private int textureHeight;
+    private Transform defaultPosition;
+    private Transform anchor;
     public Camera camera;
     public bool isActive 
     {
         get { return this.camera.gameObject.activeInHierarchy; }
     }
 
-    public SnapshotCamera(Camera mainCamera)
+    public SnapshotCamera(Camera mainCamera, Transform anchor, int textureWidth, int textureHeight)
     {
+        this.anchor = anchor;
+        this.textureWidth = textureWidth;
+        this.textureHeight = textureHeight;
+
         if (GameObject.Find("Snapshot Camera") == null)
         {
+            this.defaultPosition = mainCamera.transform;
             this.camera = Camera.Instantiate(mainCamera);
             this.camera.name = "Snapshot Camera";
             this.camera.targetTexture = new RenderTexture(this.textureWidth, this.textureHeight, 24);
@@ -23,10 +30,13 @@ public class SnapshotCamera
         }
     }
 
-    public SnapshotCamera(Camera mainCamera, int textureWidth, int textureHeight) : this(mainCamera)
+    public void RandomizePosition()
     {
-        this.textureWidth = textureWidth;
-        this.textureHeight = textureHeight;
+        float offsetX = Random.Range(-0.25f, 0.25f);
+        float offsetY = Random.Range(-0.25f, 0.25f);
+
+        this.camera.transform.position = this.defaultPosition.position + new Vector3(offsetX, offsetY, 0.0f);
+        this.camera.transform.LookAt(this.anchor);
     }
 
     public void SetActive(bool value)
@@ -37,10 +47,12 @@ public class SnapshotCamera
     public byte[] Capture()
     {
         Texture2D snapshot = new Texture2D(this.textureWidth, this.textureHeight, TextureFormat.RGB24, false);
+        snapshot.hideFlags = HideFlags.HideAndDontSave;
         this.camera.Render();
         RenderTexture.active = this.camera.targetTexture;
         snapshot.ReadPixels(new Rect(0, 0, this.textureWidth, this.textureHeight), 0, 0);
         byte[] bytes = snapshot.EncodeToPNG();
+        Object.Destroy(snapshot);
         return bytes;
     }
 }

@@ -9,6 +9,7 @@ public class GeneratorCoroutine
     private SnapshotCamera snapshotCamera;
     private EmotionsDistribution currentEmotionsDistribution;
     private GameObject directionalLight;
+    public int frame = 0;
 
     public GeneratorCoroutine() {}
 
@@ -61,9 +62,18 @@ public class GeneratorCoroutine
             this.directionalLight.transform.eulerAngles = rotation;
 
             // Camera
+            this.snapshotCamera.RandomizePosition();
             this.snapshotCamera.SetActive(true);
-            
-            yield return null;
+
+            yield return new WaitUntil(() => 
+            {
+                if (this.frame > 3)
+                {
+                    this.frame = 0;
+                    return true;
+                }
+                else  return false;
+            });
         }
     }
 }
