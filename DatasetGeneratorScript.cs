@@ -17,26 +17,38 @@ public class DatasetGeneratorScript : MonoBehaviour
     [SerializeField]
     public GameObject directionalLight;
 
-    [SerializeField]
-    public int textureWidth = 512;
-    
-    [SerializeField]
-    public int textureHeight = 512;
-
-    [SerializeField]
-    public int numberOfImages;
-
+    private int numberOfImages = 0;
+    private int textureWidth = 512;
+    private int textureHeight = 512;
     private Hashtable controllers;
     private EmotionsController emotionsController;
     private SnapshotCamera snapshotCamera;
     private GeneratorCoroutine generatorCoroutine = new GeneratorCoroutine();
-    private EmotionsDistribution currentEmotionsDistribution = new EmotionsDistribution();
     private Redis redis = new Redis();
 
     void Start()
     {
-        this.generatorCoroutine = this.generatorCoroutine.SetCurrentEmotionsDistribution(this.currentEmotionsDistribution);
+        string[] args = System.Environment.GetCommandLineArgs();
 
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (i + 1 < args.Length)
+            {
+                if (args[i] == "--size")
+                {
+                    this.numberOfImages = System.Int32.Parse(args[i + 1]);
+                }
+                else if (args[i] == "--w" || args[i] == "--width")
+                {
+                    this.textureWidth = System.Int32.Parse(args[i + 1]);
+                }
+                else if (args[i] == "--h" || args[i] == "--height")
+                {
+                    this.textureHeight = System.Int32.Parse(args[i + 1]);
+                }
+            }
+        }
+        
         if (this.snappersControllers != null) 
         {
             this.controllers = this.GetFacialControllers(this.snappersControllers);
@@ -80,7 +92,7 @@ public class DatasetGeneratorScript : MonoBehaviour
             else 
             {
                 byte[] image = this.snapshotCamera.Capture();
-                string key = this.redis.StoreDataset(this.currentEmotionsDistribution, image);
+                string key = this.redis.StoreDataset(this.generatorCoroutine.currentEmotionsDistribution, image);
                 this.redis.Publish(key);
                 this.snapshotCamera.SetActive(false);
                 this.generatorCoroutine.frame = 100;
@@ -164,7 +176,7 @@ public class DatasetGeneratorScript : MonoBehaviour
 
         if (eyeFocus != null)
         {
-            eyeFocus.transform.position = new Vector3(0, 1.7078f, 0);
+            eyeFocus.transform.position = new Vector3(0, 1.65f, 0);
 
             FocusClosestTarget focusClosestTarget = (FocusClosestTarget) eyeFocus.GetComponent(typeof(FocusClosestTarget));
             if (focusClosestTarget != null)
@@ -180,7 +192,7 @@ public class DatasetGeneratorScript : MonoBehaviour
         GameObject cameraFocusTarget = GameObject.Find("Camera Focus Target");
         if (cameraFocusTarget != null)
         {
-            cameraFocusTarget.transform.position = new Vector3(0, 1.682f, 0);
+            cameraFocusTarget.transform.position = new Vector3(0, 1.625f, 0);
         }
         else 
         {
@@ -195,7 +207,7 @@ public class DatasetGeneratorScript : MonoBehaviour
             {
                 DestroyImmediate(audioListener);
             }
-            camera.transform.position = new Vector3(0, 1.76f, -1.0f);
+            camera.transform.position = new Vector3(0, 1.65f, -1.0f);
         }
         else 
         {

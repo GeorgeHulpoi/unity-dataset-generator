@@ -7,9 +7,9 @@ public class GeneratorCoroutine
 {
     private EmotionsController emotionsController;
     private SnapshotCamera snapshotCamera;
-    private EmotionsDistribution currentEmotionsDistribution;
     private GameObject directionalLight;
     public int frame = 0;
+    public EmotionsDistribution currentEmotionsDistribution;
 
     public GeneratorCoroutine() {}
 
@@ -25,12 +25,6 @@ public class GeneratorCoroutine
         return this;
     }
 
-    public GeneratorCoroutine SetCurrentEmotionsDistribution(EmotionsDistribution currentEmotionsDistribution)
-    {
-        this.currentEmotionsDistribution = currentEmotionsDistribution;
-        return this;
-    }
-
     public GeneratorCoroutine SetDirectionalLight(GameObject directionalLight)
     {
         this.directionalLight = directionalLight;
@@ -39,24 +33,24 @@ public class GeneratorCoroutine
     
     public IEnumerator Start(int numberOfImages) 
     {
-        if (this.emotionsController == null || this.currentEmotionsDistribution == null 
-        || this.directionalLight == null || this.snapshotCamera == null)
+        if (this.emotionsController == null || this.directionalLight == null 
+        || this.snapshotCamera == null)
         {
              throw new Exception("You cannot start without all fields.");
         }
 
         List<IEmotion> emotionsPool = emotionsController.GetPool();
+        int totalEmotions = emotionsPool.Count;
 
         for (int i = 0; i < numberOfImages; i++)
         {
             // Emotions
             this.emotionsController.Reset();
-            IEmotion mainEmotion = emotionsPool[i % 3];
-            EmotionsDistribution distribution = this.emotionsController.Randomize(mainEmotion, 0.7f, 0.95f);
-            this.currentEmotionsDistribution.Copy(distribution);
+            IEmotion mainEmotion = emotionsPool[i % totalEmotions];
+            this.currentEmotionsDistribution = this.emotionsController.Randomize(mainEmotion, 0.7f, 0.95f);
 
             // Lights
-            Vector3 rotation = new Vector3(this.directionalLight.transform.eulerAngles.x,
+            Vector3 rotation = new Vector3(UnityEngine.Random.Range(1.0f, 45.0f),
                                             UnityEngine.Random.Range(-15.0f, 15.0f),
                                             this.directionalLight.transform.eulerAngles.z);
             this.directionalLight.transform.eulerAngles = rotation;
@@ -72,7 +66,7 @@ public class GeneratorCoroutine
                     this.frame = 0;
                     return true;
                 }
-                else  return false;
+                else return false;
             });
         }
     }

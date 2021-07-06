@@ -22,23 +22,6 @@ public class EmotionsController
         this.surpriseEmotion = new SurpriseEmotion(controllers);
     }
 
-    public EmotionsController SetAngryIntensity(float intensity)
-    {
-        this.angryEmotion.Apply(intensity);
-        return this;
-    }
-
-    public EmotionsController SetHappyIntensity(float intensity)
-    {
-        this.happyEmotion.Apply(intensity);
-        return this;
-    }
-
-    public EmotionsController SetSurpriseIntensity(float intensity)
-    {
-        this.surpriseEmotion.Apply(intensity);
-        return this;
-    }
 
     public void Reset() 
     {

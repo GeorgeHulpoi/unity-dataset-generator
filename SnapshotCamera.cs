@@ -48,10 +48,13 @@ public class SnapshotCamera
     {
         Texture2D snapshot = new Texture2D(this.textureWidth, this.textureHeight, TextureFormat.RGB24, false);
         snapshot.hideFlags = HideFlags.HideAndDontSave;
-        this.camera.Render();
+        RenderTexture currentActiveRT = RenderTexture.active;
+
         RenderTexture.active = this.camera.targetTexture;
+        this.camera.Render();
         snapshot.ReadPixels(new Rect(0, 0, this.textureWidth, this.textureHeight), 0, 0);
         byte[] bytes = snapshot.EncodeToPNG();
+        RenderTexture.active = currentActiveRT;
         Object.Destroy(snapshot);
         return bytes;
     }

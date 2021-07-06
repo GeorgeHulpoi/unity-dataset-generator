@@ -4,12 +4,7 @@ using TeamDev.Redis;
 
 public class Redis
 {
-    private RedisDataAccessProvider dataAccessProvider;
-
-    public Redis()
-    {
-        this.dataAccessProvider = new RedisDataAccessProvider();
-    }
+    private RedisDataAccessProvider dataAccessProvider = new RedisDataAccessProvider();
 
     public string StoreDataset(EmotionsDistribution distribution, byte[] image)
     {
