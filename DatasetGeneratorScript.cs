@@ -176,7 +176,7 @@ public class DatasetGeneratorScript : MonoBehaviour
 
         if (eyeFocus != null)
         {
-            eyeFocus.transform.position = new Vector3(0, 1.65f, 0);
+            eyeFocus.transform.position = new Vector3(0, 1.75f, 0);
 
             FocusClosestTarget focusClosestTarget = (FocusClosestTarget) eyeFocus.GetComponent(typeof(FocusClosestTarget));
             if (focusClosestTarget != null)
@@ -192,7 +192,7 @@ public class DatasetGeneratorScript : MonoBehaviour
         GameObject cameraFocusTarget = GameObject.Find("Camera Focus Target");
         if (cameraFocusTarget != null)
         {
-            cameraFocusTarget.transform.position = new Vector3(0, 1.625f, 0);
+            cameraFocusTarget.transform.position = new Vector3(0, 1.75f, 0);
         }
         else 
         {
@@ -207,7 +207,7 @@ public class DatasetGeneratorScript : MonoBehaviour
             {
                 DestroyImmediate(audioListener);
             }
-            camera.transform.position = new Vector3(0, 1.65f, -1.0f);
+            camera.transform.position = new Vector3(0, 1.75f, -1.0f);
         }
         else 
         {
